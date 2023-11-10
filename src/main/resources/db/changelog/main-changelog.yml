@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1_create_classroom_table
+      author: Kiselev_Mikhail
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: classroom
+      changes:
+        - createTable:
+            tableName: classroom
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(3)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2_create_student_table
+      author: Kiselev_Mikhail
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: student
+      changes:
+        - createTable:
+            tableName: student
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: classroom_id
+                  type: bigint
+                  constraints:
+                    referencedTableName: classroom
+                    referencedColumnNames: id
+                    foreignKeyName: classroom_student_fk
+
+  - changeSet:
+      id: 3_fill_classroom_table
+      author: Kiselev_Mikhail
+      preConditions:
+        - onFail: MARK_RAN
+        - tableIsEmpty:
+            tableName: classroom
+      changes:
+        - loadData:
+            tableName: classroom
+            file: db/data/classroom.csv
+
+  - changeSet:
+      id: 4_fill_student_table
+      author: Kiselev_Mikhail
+      preConditions:
+        - onFail: MARK_RAN
+        - tableIsEmpty:
+            tableName: student
+      changes:
+        - loadData:
+            tableName: student
+            file: db/data/student.csv
+
+  - changeSet:
+      id: 5_restart_tables_ids
+      author: Kiselev_Mikhail
+      changes:
+        - sqlFile:
+            path: db/sql/restart_ids.sql
